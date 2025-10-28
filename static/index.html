@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dockerfile AI Optimizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/x-png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+      :root {
+        color-scheme: dark;
+        --md-sys-color-background: #0b0f14;
+        --md-sys-color-surface: #0e131a;
+        --md-sys-color-on-surface: #e2e8f0;
+        --md-sys-color-primary: #7dd3fc;
+        --md-sys-color-secondary: #a5b4fc;
+        --container-max: 1000px;
+      }
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body {
+        height: 100%;
+        margin: 0;
+        background: var(--md-sys-color-surface);
+        color: var(--md-sys-color-on-surface);
+        font-family: Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        position: sticky;
+        top: 0;
+        background: linear-gradient(0deg, rgba(14,19,26,0.6), rgba(14,19,26,0.95));
+        backdrop-filter: blur(8px);
+        z-index: 10;
+      }
+      .container {
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: 15px 16px 15px;
+      }
+      h1 { font-size: 25px; font-weight: 600; margin: 0; }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      @media (min-width: 900px) {
+        .grid { grid-template-columns: 1fr 1fr; }
+      }
+      .card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        display: flex;
+        flex-direction: column;
+      }
+      label { display: block; font-weight: 500; margin-bottom: 8px; }
+      textarea {
+        width: 100%;
+        height: 420px;
+        resize: none;
+        overflow: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+        background: #0b0f14;
+        color: var(--md-sys-color-on-surface);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        padding: 12px 14px;
+        line-height: 1.4;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+      textarea[readonly] {
+        opacity: 0.9;
+      }
+      .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+      .row.center { justify-content: center; }
+      .row.left { justify-content: flex-start; }
+      .spacer { flex: 1 1 auto; }
+      
+      /* Custom button styles */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--md-sys-color-on-surface);
+        transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      }
+      .btn .material-icons { font-size: 18px; }
+      .btn-sm { font-size: 13px; padding: 8px 12px; }
+      .btn .material-icons { display: inline-flex; align-items: center; line-height: 1; }
+      .btn-neutral {
+        border-color: rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.85);
+      }
+      .btn-neutral:hover { background: rgba(255,255,255,0.08); }
+      .btn-green {
+        border-color: #22c55e;
+        color: #22c55e;
+      }
+      .btn-green:hover {
+        background: rgba(34, 197, 94, 0.12);
+        border-color: #22c55e;
+        color: #22c55e;
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      /* Inline spinner for loading state */
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.25);
+        border-top-color: #22c55e;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        display: none;
+        margin-left: 10px;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .btn.loading .spinner { display: inline-block; }
+      .btn.loading .btn-label { opacity: 0.85; }
+      .footer { opacity: 0.7; font-size: 12px; margin-top: 16px; }
+      .hint { font-size: 12px; opacity: 0.8; margin-top: 8px; }
+      .badge { font-size: 11px; opacity: 0.75; border: 1px solid rgba(255,255,255,0.14); padding: 2px 6px; border-radius: 999px; }
+      .badge-blue { opacity: 1; border-color: rgba(59,130,246,0.5); color: #93c5fd; background: rgba(59,130,246,0.12); }
+      .logo { display: inline-flex; align-items: center; gap: 10px; }
+      .logo .material-icons { color: var(--md-sys-color-primary); }
+      .site-footer {
+        text-align: center;
+        opacity: 0.7;
+        font-size: 12px;
+        padding: 16px;
+        margin-top: 24px;
+      }
+      .summary {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        padding: 16px;
+        margin-top: 16px;
+        font-size: 14px;
+        line-height: 1.5;
+        display: none;
+      }
+      .summary h3 {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--md-sys-color-primary);
+      }
+      .summary ul, .summary ol {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+      .summary li {
+        margin: 4px 0;
+        line-height: 1.4;
+      }
+      .summary strong {
+        color: var(--md-sys-color-primary);
+        font-weight: 600;
+      }
+      .summary em {
+        color: var(--md-sys-color-secondary);
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container row">
+        <div class="logo">
+          <span class="material-icons">layers</span>
+          <h1>Dockerfile AI Optimizer</h1>
+          <span class="badge badge-blue">BETA</span>
+        </div>
+        <span class="spacer"></span>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="grid">
+        <section class="card">
+          <label for="dockerfile">Your Dockerfile</label>
+          <textarea id="dockerfile" placeholder="Paste your Dockerfile here..."># Example
+FROM ubuntu:latest
+LABEL maintainer="someone@example.com"
+
+RUN apt-get update
+RUN apt-get install -y python3 python3-pip build-essential git curl
+
+WORKDIR /app
+ADD . /app
+ADD https://example.com/bigfile.tar.gz /tmp/bigfile.tar.gz
+
+RUN pip install -r requirements.txt
+ENV FLASK_ENV=development
+RUN useradd -m app && echo 'APP_SECRET=hardcoded' >> /etc/environment
+RUN apt-get install -y vim net-tools
+RUN pip install uwsgi
+RUN chmod -R 777 /app
+
+EXPOSE 8000
+ENTRYPOINT /bin/sh -c "sleep 1 && echo starting"
+CMD python3 app.py
+</textarea>
+          <div class="row left" style="margin-top:10px">
+            <button id="clearBtn" class="btn btn-sm btn-neutral">
+              <span class="material-icons">delete_sweep</span>
+              Clear
+            </button>
+          </div>
+          <div class="row center" style="margin-top:10px">
+            <button id="submitBtn" class="btn btn-green">
+              <span class="material-icons">rocket_launch</span>
+              <span class="btn-label">Optimize</span>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+        </section>
+
+        <section class="card">
+          <label for="result">Optimization Result</label>
+          <textarea id="result" readonly placeholder="Results will appear here..."></textarea>
+          <div class="row left" style="margin-top:10px">
+            <button id="copyBtn" class="btn btn-sm btn-neutral">
+              <span class="material-icons">content_copy</span>
+              Copy
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <div id="summary" class="summary">
+        <h3>Optimization Summary</h3>
+        <div id="summaryContent"></div>
+      </div>
+
+    </main>
+
+    <footer class="site-footer">
+      © 2025 Dockerfile AI Optimizer by <a href="https://www.linkedin.com/in/aliaksandr-serzhankou/" target="_blank">Aliaksandr Serzhankou</a>. All rights reserved.
+    </footer>
+
+    <script>
+      const submitBtn = document.getElementById('submitBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      const input = document.getElementById('dockerfile');
+      const output = document.getElementById('result');
+      const summary = document.getElementById('summary');
+      const summaryContent = document.getElementById('summaryContent');
+
+      async function optimize() {
+        const dockerfile = input.value.trim();
+        if (!dockerfile) {
+          output.value = 'Please paste a Dockerfile first.';
+          return;
+        }
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
+        const labelEl = submitBtn.querySelector('.btn-label');
+        if (labelEl) labelEl.textContent = 'Optimizing…';
+        output.value = 'Working…';
+        try {
+          const res = await fetch('/api/optimize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dockerfile })
+          });
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText || `HTTP ${res.status}`);
+          }
+          const data = await res.json();
+          output.value = data.result || '';
+          
+          // Show summary if available
+          if (data.summary && data.summary.trim()) {
+            // Format summary as HTML with proper line breaks and lists
+            const formattedSummary = data.summary
+              .replace(/\n/g, '<br>')
+              .replace(/^[-•]\s+/gm, '• ')
+              .replace(/^(\d+\.)\s+/gm, '$1 ')
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.*?)\*/g, '<em>$1</em>');
+            summaryContent.innerHTML = formattedSummary;
+            summary.style.display = 'block';
+          } else {
+            summary.style.display = 'none';
+          }
+        } catch (e) {
+          output.value = `Error: ${e.message || e}`;
+          summary.style.display = 'none';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('loading');
+          const labelEl2 = submitBtn.querySelector('.btn-label');
+          if (labelEl2) labelEl2.textContent = 'Optimize';
+        }
+      }
+
+      submitBtn.addEventListener('click', optimize);
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        output.value = '';
+        summary.style.display = 'none';
+      });
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(output.value || '');
+          copyBtn.textContent = 'Copied';
+          setTimeout(() => (copyBtn.textContent = 'Copy'), 1200);
+        } catch {}
+      });
+    </script>
+  </body>
+</html>
+
+
