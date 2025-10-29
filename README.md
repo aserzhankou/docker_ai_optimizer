@@ -1,4 +1,4 @@
-## Dockerfile AI Optimizer (Beta) (Web UI + CLI) by [Aliaksandr Serzhankou](https://www.linkedin.com/in/aliaksandr-serzhankou/)
+## Dockerfile AI Optimizer (Beta) (Web UI + CLI) by [Alexander Serzhankou](https://www.linkedin.com/in/aliaksandr-serzhankou/)
 
 ### Demo
 

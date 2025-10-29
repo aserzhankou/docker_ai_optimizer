@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-LABEL author="Aliaksandr Serzhankou"
+LABEL author="Alexander Serzhankou"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
