@@ -1,5 +1,9 @@
 ## Dockerfile AI Optimizer (Beta) (Web UI + CLI) by [Aliaksandr Serzhankou](https://www.linkedin.com/in/aliaksandr-serzhankou/)
 
+### Demo
+
+Web UI is available live at [https://docker-ai-optimizer.onrender.com](https://docker-ai-optimizer.onrender.com/)
+
 ### Setup
 
 1. Create and activate a virtual environment (recommended)
